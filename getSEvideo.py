@@ -185,7 +185,7 @@ def getSEvideo(path, outputdirectory): #input video path, output video directory
 
 if len(sys.argv[1:])<2:
 	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
-	print("python3 getSEvideo 'input video' 'output folder'")
+	print("python3 getSEvideo.py 'input video' 'output folder'")
 	print("output video will be in output folder and be named similarly to the input video")
 	exit()
 
