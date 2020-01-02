@@ -8,3 +8,5 @@ python3 getSEvideo.py 'input video' 'output folder'
 
 ## todo:
 add more face area in SE video by using outer-face points as reference points
+
+###### uses code from: https://github.com/pandeydivesh15/AVSR-Deep-Speech
