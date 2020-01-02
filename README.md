@@ -8,7 +8,7 @@ makes the task of generating Speech Entrainment videos easier
 ## example run:
 python3 getSEvideo.py input/test.mp4 output #output SE video will be in the output directory and will be named testSE.mp4
 
-## tip: use a better camera for better results. Using an iPhone will yield low-quality (grainy) videos.
+### tip: use a better camera for better results. Using an iPhone will likely yield low-quality (grainy) videos.
 
 ## requirements:
 - numpy
