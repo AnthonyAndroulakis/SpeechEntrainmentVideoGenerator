@@ -13,3 +13,6 @@ python3 getSEvideo.py input/test.mp4 output #output SE video will be in the outp
 - dlib
 - opencv-python
 - vidstab
+
+## todo:
+apply https://github.com/anchen1011/toflow for final video smoothing
