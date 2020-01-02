@@ -6,6 +6,8 @@ import numpy as np
 import dlib
 import cv2
 
+import vidstab
+
 from video_stream import VideoStream
 
 FACE_DETECTOR_MODEL = None
@@ -46,11 +48,14 @@ def get_mouth_coord(landmarks):
 		1. landmarks: 	Facial landmarks returned by DLIB's LANDMARKS_PREDICTOR
 	"""
 	coords = []
-	for i in range(48, 68):
-		point = landmarks.part(i)
-		coords.append((point.x, point.y))
+	#for i in range(48, 68):
+	#	point = landmarks.part(i)
+	#	coords.append((point.x, point.y))
+	coords.append((landmarks.part(33).x, landmarks.part(33).y))
+	coords.append(((landmarks.part(5).x+landmarks.part(6).x)/2, (landmarks.part(5).y+landmarks.part(6).y)/2))
+	coords.append(((landmarks.part(10).x+landmarks.part(11).x)/2, (landmarks.part(10).y+landmarks.part(11).y)/2))
 
-	return np.array(coords)
+	return np.array(coords, dtype=np.float32)
 
 def visualize(frame, coordinates_list, alpha = 0.80, color=[255, 255, 255]):
 	"""
@@ -79,7 +84,8 @@ def crop_and_store(frame, mouth_coordinates, name):
 	"""
 
 	# Find bounding rectangle for mouth coordinates
-	x, y, w, h = cv2.boundingRect(mouth_coordinates)
+	#print(mouth_coordinates)
+	x, y, w, h = cv2.boundingRect(mouth_coordinates) #############
 
 	mouth_roi = frame[y:y + h, x:x + w]
 
@@ -144,26 +150,33 @@ def getSEvideo(path, outputdirectory): #input video path, output video directory
 		1. video_dir:			Directory storing all videos to be processed.
 	"""
 
-	output_dir = outputdirectory
+	originalpath = path
 
+	os.system('mkdir -p stab')
 	os.system('mkdir -p audio')
 	os.system('mkdir -p pictures')
 	os.system('mkdir -p silentvid')
 
-	originalpath = path
-
+    #stabilize video
 	video_name = path.split('/')[-1].split(".")[0]
 	input_directory = '/'.join(path.split('/')[:-1])
-	if path[-3:] != 'mp4': 
-		os.system('ffmpeg -i '+path+' '+input_directory+'/'+video_name+'.mp4') #convert to .mp4 if not 
-		path = input_directory+'/'+video_name+'.mp4' #redefine path
+	#video_extension = path.split('/')[-1].split(".")[-1]
+	if path[-3:] != 'avi': 	
+		os.system('ffmpeg -i '+path+' stab/'+video_name+'.avi') #convert to .avi if not 
+		path = 'stab/'+video_name+'.avi'
+	os.system('python3 -m vidstab --input '+path+' --output stab/'+video_name+'_stable.avi') #stabilize video
+	path = 'stab/'+video_name+'_stable.avi'
+	os.system('ffmpeg -i '+path+' stab/'+video_name+'.mp4') #convert to mp4
+	path = 'stab/'+video_name+'.mp4'
+
+	output_dir = outputdirectory
 
 	load_trained_models()
 
 	if not FACE_DETECTOR_MODEL:
 		return False
 
-	os.system('ffmpeg -i '+path+' -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/'+video_name+'.wav') #extract audio from video, place in audio folder
+	os.system('ffmpeg -i '+originalpath+' -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/'+video_name+'.wav') #extract audio from video, place in audio folder
 
 	extract_mouth_regions(path, 'pictures', screen_display=False) #pictures placed in pictures folder
 
@@ -174,18 +187,16 @@ def getSEvideo(path, outputdirectory): #input video path, output video directory
 	#add audio to silent video
 	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+video_name+'SE.mp4')
 
+	os.system('rm -rf stab')
 	os.system('rm -rf audio')
 	os.system('rm -rf pictures')
 	os.system('rm -rf silentvid')
-
-	if originalpath != path:
-		os.system('rm '+path)
 
 	return True
 
 if len(sys.argv[1:])<2:
 	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
-	print("python3 getSEvideo.py 'input video' 'output folder'")
+	print("python3 getSEvideo 'input video' 'output folder'")
 	print("output video will be in output folder and be named similarly to the input video")
 	exit()
 
