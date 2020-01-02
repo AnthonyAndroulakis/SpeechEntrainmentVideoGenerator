@@ -1,10 +1,15 @@
 # SpeechEntrainmentVideoGenerator
-SpeechEntrainmentVideoGenerator, not finished yet
+makes the task of generating Speech Entrainment videos easier
 
-a video does get outputed, but I need more area of the face
-
-## how to run: 
-python3 getSEvideo.py 'input video' 'output folder'
+## how to use: 
+1) record yourself saying something
+2) run the following script: python3 getSEvideo.py 'input video' 'output folder'
 
 ## example run:
 python3 getSEvideo.py input/test.mp4 output #output SE video will be in the output directory and will be named testSE.mp4
+
+## requirements:
+- numpy
+- dlib
+- opencv-python
+- vidstab
