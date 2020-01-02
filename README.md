@@ -2,7 +2,7 @@
 makes the task of generating Speech Entrainment videos easier
 
 ## how to use: 
-1) record yourself saying something
+1) record yourself saying something (your entire face must be in the video in order to create the best results)
 2) run the following script: python3 getSEvideo.py 'input video' 'output folder'
 
 ## example run:
