@@ -10,6 +10,8 @@ import vidstab
 
 from video_stream import VideoStream
 
+from PIL import Image
+
 FACE_DETECTOR_MODEL = None
 LANDMARKS_PREDICTOR = None
 
@@ -144,18 +146,14 @@ def extract_mouth_regions(path, output_dir, screen_display):
 		cv2.destroyAllWindows()
 
 
-def getSEvideo(path, outputdirectory): #input video path, output video directory
-	"""
-	Args:
-		1. video_dir:			Directory storing all videos to be processed.
-	"""
-
+def getSEvideo(path, outputpath, numinterp): #input video relative path, output video relative path, number of smoothings by interpolation
 	originalpath = path
 
 	os.system('mkdir -p stab')
 	os.system('mkdir -p audio')
 	os.system('mkdir -p pictures')
 	os.system('mkdir -p silentvid')
+	os.system('mkdir -p pngfiles')
 
     #stabilize video
 	video_name = path.split('/')[-1].split(".")[0]
@@ -169,7 +167,9 @@ def getSEvideo(path, outputdirectory): #input video path, output video directory
 	os.system('ffmpeg -i '+path+' stab/'+video_name+'.mp4') #convert to mp4
 	path = 'stab/'+video_name+'.mp4'
 
-	output_dir = outputdirectory
+	#output_dir = outputdirectory
+	outvideo_name = outputpath.split('/')[-1].split(".")[0]
+	output_dir = '/'.join(outputpath.split('/')[:-1])
 
 	load_trained_models()
 
@@ -180,25 +180,37 @@ def getSEvideo(path, outputdirectory): #input video path, output video directory
 
 	extract_mouth_regions(path, 'pictures', screen_display=False) #pictures placed in pictures folder
 
-	#create SE video
-	framerate = os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1] #as a string
-	os.system('ffmpeg -framerate '+framerate+' -start_number 0 -i pictures/%d.jpg -vcodec mpeg4 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
+	#smooth SE video using interpolationXn
+	for k in glob.glob('pictures/*.jpg'): #copy files from pictures to png files and convert
+		jpgim = Image.open(k)
+		jpgim.save('pngfiles/'+k.split('/')[-1][:-4]+'.png')
 
+	for ijk in range(int(numinterp)): #number of interpolations
+		for i in list(range(len(glob.glob('pngfiles/*.png'))))[::-1]: #convert all number pictures to even numbers
+			os.system('mv pngfiles/'+str(i)+'.png pngfiles/'+str(2*i)+'.png')
+		for j in range(len(glob.glob('pngfiles/*.png'))-1): #smooth frames using interpolation
+			os.system('python3 pytoflow/run.py --f1 pngfiles/'+str(2*j)+'.png --f2 pngfiles/'+str(2*(j+1))+'.png --o pngfiles/'+str(2*j+1)+'.png --task interp')
+
+	#create SE video
+	oldnumofpics = len(glob.glob('pictures/*.jpg'))
+	newnumofpics = len(glob.glob('pngfiles/*.png'))
+	framerate = (newnumofpics/oldnumofpics)*float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
+	os.system('ffmpeg -framerate '+str(round(framerate))+' -start_number 0 -i pngfiles/%d.png -vcodec mpeg4 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
 	#add audio to silent video
-	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+video_name+'SE.mp4')
+	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
 
 	os.system('rm -rf stab')
 	os.system('rm -rf audio')
 	os.system('rm -rf pictures')
 	os.system('rm -rf silentvid')
+	os.system('rm -rf pngfiles')
 
 	return True
 
-if len(sys.argv[1:])<2:
+if len(sys.argv[1:])<3:
 	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
-	print("python3 getSEvideo 'input video' 'output folder'")
-	print("output video will be in output folder and be named similarly to the input video")
+	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py' num_of_temporal_smoothing_passes")
 	exit()
 
-getSEvideo(sys.argv[1],sys.argv[2])
+getSEvideo(sys.argv[1],sys.argv[2],sys.argv[3])
 #dont bother automating the video recording, just do it on a phone
