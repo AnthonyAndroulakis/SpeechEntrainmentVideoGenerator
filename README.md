@@ -47,3 +47,6 @@ An example input video and a corresponding output video can be seen in the examp
   publisher={Springer}
 }
 ```
+
+## License:
+You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
