@@ -55,7 +55,9 @@ An example input video and a corresponding output video can be seen in the examp
 ```
 
 ## todo: 
-There's a slight lag due to using ffmpeg for setting the framerate. Maybe if I use a python solution for making videos from pictures, I can set the exact framerate and take out the lag.
+- There's a slight lag due to using ffmpeg for setting the framerate. Maybe if I use a python solution for making videos from pictures, I can set the exact framerate and take out the lag.
+- upscaling png files...maybe?
+- store png files with correct dimensions (as of now they're all 32x32 squares...........)
 
 ## License:
 You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
