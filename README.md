@@ -2,7 +2,7 @@
 makes the task of generating Speech Entrainment videos easier
 
 <img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/inputvideo.gif" width="300" height="533"> 
-<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/outputvideo.gif" width="200" height="200">  
+<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/outputvideo.gif" width="150" height="150">  
 
 ## how to use: 
 1) record yourself saying something     
