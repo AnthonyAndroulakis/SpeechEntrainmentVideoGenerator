@@ -1,4 +1,4 @@
-# SpeechEntrainmentVideoGenerator
+# Speech Entrainment Video Generator
 makes the task of generating Speech Entrainment videos easier
 
 ## how to use: 
