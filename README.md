@@ -16,10 +16,14 @@ python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video
 `python3 getSEvideo.py input/input.MOV output/SEoutput.mp4 2` #note: the output video will always have a .mp4 extension. I did this to reduce possible errors. If you'd like to change video formats, I recommend using ffmpeg.
 
 ## requirements:
+python2 or python3
 - numpy
 - dlib
 - opencv-python
 - vidstab
+
+## optional prerequisite:
+CUDA (will make this program run a lot faster)
 
 ## How it works:
 1) video is inputted
