@@ -1,5 +1,5 @@
 # Speech Entrainment Video Generator
-makes the task of generating Speech Entrainment videos easier
+makes the task of generating Speech Entrainment videos easier       
 \* currently optimizing program, check todo list at the bottom of this page *
 
 sample input-ouput comparison: https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/final_5e0ec6cd6025710014847670_713368.mp4
@@ -41,7 +41,7 @@ An example input video and a corresponding output video can be seen in the examp
 - video stabilization: https://github.com/AdamSpannbauer/python_video_stab
 - face landmark points: http://dlib.net/, https://github.com/pandeydivesh15/AVSR-Deep-Speech
 - video temporal smoothing using interpolation: https://github.com/Coldog2333/pytoflow, https://github.com/anchen1011/toflow, http://toflow.csail.mit.edu/
-```
+- ```
 @article{xue2019video,
   title={Video Enhancement with Task-Oriented Flow},
   author={Xue, Tianfan and Chen, Baian and Wu, Jiajun and Wei, Donglai and Freeman, William T},
