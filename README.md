@@ -1,8 +1,8 @@
 # Speech Entrainment Video Generator
 makes the task of generating Speech Entrainment videos easier
 
-<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/inputvideo.gif" width="400" height="790">
-<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/outputvideo.gif" width="400" height="790">  
+<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/inputvideo.gif" width="300" height="533"> 
+<img src="https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/outputvideo.gif" width="400" height="400">  
 
 ## how to use: 
 1) record yourself saying something     
