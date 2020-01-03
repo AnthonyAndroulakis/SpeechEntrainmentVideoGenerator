@@ -1,7 +1,7 @@
 # Speech Entrainment Video Generator
 makes the task of generating Speech Entrainment videos easier
 
-<div style="height: 0; padding-bottom: calc(100.00% + 35px); position:relative; width: 100%;"><iframe allow="autoplay; gyroscope;" allowfullscreen height="100%" referrerpolicy="strict-origin" src="https://www.kapwing.com/e/5e0ec6cd6025710014847670" style="border:0; height:100%; left:0; overflow:hidden; position:absolute; top:0; width:100%" title="Embedded content made with Kapwing" width="100%" /></div>
+sample input-ouput comparison: https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/final_5e0ec6cd6025710014847670_713368.mp4
 
 ## how to use: 
 1) record yourself saying something     
@@ -53,6 +53,9 @@ An example input video and a corresponding output video can be seen in the examp
   publisher={Springer}
 }
 ```
+
+## todo: 
+There's a slight lag due to using ffmpeg for setting the framerate. Maybe if I use a python solution for making videos from pictures, I can set the exact framerate and take out the lag.
 
 ## License:
 You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
