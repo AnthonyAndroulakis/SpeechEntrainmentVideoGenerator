@@ -41,7 +41,7 @@ An example input video and a corresponding output video can be seen in the examp
 - video stabilization: https://github.com/AdamSpannbauer/python_video_stab
 - face landmark points: http://dlib.net/, https://github.com/pandeydivesh15/AVSR-Deep-Speech
 - video temporal smoothing using interpolation: https://github.com/Coldog2333/pytoflow, https://github.com/anchen1011/toflow, http://toflow.csail.mit.edu/
-- ```
+```
 @article{xue2019video,
   title={Video Enhancement with Task-Oriented Flow},
   author={Xue, Tianfan and Chen, Baian and Wu, Jiajun and Wei, Donglai and Freeman, William T},
