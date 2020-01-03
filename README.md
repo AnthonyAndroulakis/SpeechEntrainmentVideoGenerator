@@ -24,8 +24,7 @@ python2 or python3
 - opencv-python
 - vidstab
 
-## optional prerequisite:
-CUDA (will make this program run a lot faster)
+## note: as you increase num_of_temporal_smoothing_passes, the program takes exponentially longer to complete
 
 ## How it works:
 1) video is inputted
