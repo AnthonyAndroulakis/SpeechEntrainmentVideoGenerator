@@ -2,7 +2,7 @@
 makes the task of generating Speech Entrainment videos easier       
 \* currently optimizing program, check todo list at the bottom of this page *
 
-![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/flowchart.png)
+![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/flowchartupdated.png)
 
 sample input-ouput comparison: https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/final_5e0ec6cd6025710014847670_713368.mp4
 
