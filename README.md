@@ -1,4 +1,4 @@
-# Speech Entrainment Video Generator
+# Speech Entrainment (SE) Video Generator
 makes the task of generating Speech Entrainment videos easier       
 \* currently optimizing program, check todo list at the bottom of this page *
 
