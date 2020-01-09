@@ -33,7 +33,7 @@ python2 or python3
 1) video is inputted
 2) video is stabilized using vidstab (https://github.com/AdamSpannbauer/python_video_stab)
 3) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
-4) mouth is cropped from video frames (using util/video_stream.py and edited version util/data_preprocessing_autoencoder.py  from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
+4) mouth is cropped from video frames (using edited version of util/data_preprocessing_autoencoder.py from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
 5) extra (pictures) frames are added to smooth video (https://github.com/Coldog2333/pytoflow)
 
 ## Example input and output:
