@@ -200,7 +200,7 @@ def getSEvideo(path, outputpath, numinterp): #input video relative path, output 
 	oldnumofpics = len(glob.glob('pictures/*.jpg'))
 	newnumofpics = len(glob.glob('pngfiles/*.png'))
 	framerate = (newnumofpics/oldnumofpics)*float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
-	os.system('ffmpeg -framerate '+str(round(framerate))+' -start_number 0 -i pngfiles/%d.png -vcodec mpeg4 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
+	os.system('ffmpeg -framerate '+str(round(framerate))+' -start_number 0 -i pngfiles/%d.png -qscale 0 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
 	#add audio to silent video
 	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
 
