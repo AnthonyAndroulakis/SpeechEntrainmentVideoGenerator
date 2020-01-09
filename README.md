@@ -55,6 +55,7 @@ An example input video and a corresponding output video can be seen in the examp
 
 ## todo: 
 - There's a slight lag due to...still trying to find out. I've noticed different video and audio duration times, so I'll first have to fix the audio extraction function. Also, instead of the current method of calculating new-framerate, I'll have to use (# of new frames) / (original duration).
+- implement a kalman filter
 
 ## License:
 You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
