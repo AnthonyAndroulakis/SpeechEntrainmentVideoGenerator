@@ -4,10 +4,6 @@ import numpy as np
 import dlib
 import cv2
 
-import vidstab
-
-#from video_stream import VideoStream
-
 from PIL import Image
 
 FACE_DETECTOR_MODEL = None
