@@ -1,6 +1,4 @@
-import os
-import sys
-import glob
+import os,sys,glob
 
 import numpy as np
 import dlib
@@ -8,7 +6,7 @@ import cv2
 
 import vidstab
 
-from video_stream import VideoStream
+#from video_stream import VideoStream
 
 from PIL import Image
 
@@ -77,7 +75,7 @@ def visualize(frame, coordinates_list, alpha = 0.80, color=[255, 255, 255]):
 	cv2.addWeighted(layer, alpha, output, 1 - alpha, 0, output)
 	cv2.imshow("Output", output)
 
-def crop_and_store(frame, mouth_coordinates, name):
+def crop_and_store(frame, mouth_coordinates, name, thewidth, theheight):
 	"""
 	Args:
 		1. frame:				The frame which has to be cropped.
@@ -96,7 +94,7 @@ def crop_and_store(frame, mouth_coordinates, name):
 	if h < 10 or w < 10:
 		return
 	
-	resized = resize(mouth_roi, 32, 32)
+	resized = resize(mouth_roi, thewidth, theheight)
 	cv2.imwrite(name, resized)
 
 def extract_mouth_regions(path, output_dir, screen_display):
@@ -108,15 +106,29 @@ def extract_mouth_regions(path, output_dir, screen_display):
 	"""
 	video_name = path.split('/')[-1].split(".")[0]
 
-	stream = VideoStream(path)
-	stream.start()
-
+	#stream = VideoStream(path)
+	#stream.start()
 	count = 0 # Counts number of mouth regions extracted
 
-	while not stream.is_empty():
-		frame = stream.read()
+	for i in range(len(glob.glob('./frames/*.jpg'))): #find average width and height
+		frame = cv2.imread('./frames/'+str(i+1)+'.jpg')
+		rects = FACE_DETECTOR_MODEL(frame, 0)
+		widths = []
+		heights = []
+		for rect in rects: #find avg width and height
+			landmarks = LANDMARKS_PREDICTOR(frame, rect)
+			mouth_coordinates = get_mouth_coord(landmarks)
+			x, y, w, h = cv2.boundingRect(mouth_coordinates)
+			widths.append(w)
+			heights.append(h)
+	avgwidth = round(sum(widths)/len(widths))
+	avgheight = round(sum(heights)/len(heights))
 
-		frame = resize(frame, IMAGE_WIDTH)
+	for i in range(len(glob.glob('./frames/*.jpg'))):
+		#frame = stream.read()
+		frame = cv2.imread('./frames/'+str(i+1)+'.jpg')
+
+		#frame = resize(frame, IMAGE_WIDTH)
 
 		rects = FACE_DETECTOR_MODEL(frame, 0)
 
@@ -131,7 +143,9 @@ def extract_mouth_regions(path, output_dir, screen_display):
 			crop_and_store(
 				frame, 
 				mouth_coordinates, 
-				name = output_dir +'/'+ str(count) + '.jpg')
+				name = output_dir +'/'+ str(count) + '.jpg',
+				thewidth = avgwidth,
+				theheight = avgheight)
 
 			count+=1
 
@@ -141,7 +155,6 @@ def extract_mouth_regions(path, output_dir, screen_display):
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break
 
-	stream.stop()
 	if screen_display:
 		cv2.destroyAllWindows()
 
@@ -149,23 +162,17 @@ def extract_mouth_regions(path, output_dir, screen_display):
 def getSEvideo(path, outputpath, numinterp): #input video relative path, output video relative path, number of smoothings by interpolation
 	originalpath = path
 
-	os.system('mkdir -p stab')
+	os.system('mkdir -p frames')
 	os.system('mkdir -p audio')
 	os.system('mkdir -p pictures')
 	os.system('mkdir -p silentvid')
 	os.system('mkdir -p pngfiles')
 
-    #stabilize video
 	video_name = path.split('/')[-1].split(".")[0]
 	input_directory = '/'.join(path.split('/')[:-1])
-	#video_extension = path.split('/')[-1].split(".")[-1]
-	if path[-3:] != 'avi': 	
-		os.system('ffmpeg -i '+path+' stab/'+video_name+'.avi') #convert to .avi if not 
-		path = 'stab/'+video_name+'.avi'
-	os.system('python3 -m vidstab --input '+path+' --output stab/'+video_name+'_stable.avi') #stabilize video
-	path = 'stab/'+video_name+'_stable.avi'
-	os.system('ffmpeg -i '+path+' stab/'+video_name+'.mp4') #convert to mp4
-	path = 'stab/'+video_name+'.mp4'
+	if path[-3:] != 'mp4': 
+		os.system('ffmpeg -i '+path+' -q:v 0 '+input_directory+'/'+video_name+'.mp4')
+		path = input_directory+'/'+video_name+'.mp4'
 
 	#output_dir = outputdirectory
 	outvideo_name = outputpath.split('/')[-1].split(".")[0]
@@ -176,9 +183,11 @@ def getSEvideo(path, outputpath, numinterp): #input video relative path, output 
 	if not FACE_DETECTOR_MODEL:
 		return False
 
-	os.system('ffmpeg -i '+originalpath+' -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/'+video_name+'.wav') #extract audio from video, place in audio folder
+	os.system('ffmpeg -i '+originalpath+' -qscale 0 frames/%d.jpg') #convert video to frames
 
-	extract_mouth_regions(path, 'pictures', screen_display=False) #pictures placed in pictures folder
+	os.system('ffmpeg -i '+path+' -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/'+video_name+'.wav') #extract audio from video, place in audio folder
+
+	extract_mouth_regions(path, './pictures', screen_display=False) #pictures placed in pictures folder
 
 	#smooth SE video using interpolationXn
 	for k in glob.glob('pictures/*.jpg'): #copy files from pictures to png files and convert
@@ -199,7 +208,7 @@ def getSEvideo(path, outputpath, numinterp): #input video relative path, output 
 	#add audio to silent video
 	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
 
-	os.system('rm -rf stab')
+	os.system('rm -rf frames')
 	os.system('rm -rf audio')
 	os.system('rm -rf pictures')
 	os.system('rm -rf silentvid')
@@ -207,10 +216,10 @@ def getSEvideo(path, outputpath, numinterp): #input video relative path, output 
 
 	return True
 
-if len(sys.argv[1:])<3:
-	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
-	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py' num_of_temporal_smoothing_passes")
-	exit()
+#if len(sys.argv[1:])<3:
+#	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
+#	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py' num_of_temporal_smoothing_passes")
+#	exit()
 
 getSEvideo(sys.argv[1],sys.argv[2],sys.argv[3])
 #dont bother automating the video recording, just do it on a phone
