@@ -18,7 +18,7 @@ python3 getSEvideo.py 'input video path relative to getSEvideo.py' 'output video
 `python3 getSEvideo.py input/input.MOV output/SEoutput.mp4` #note: the output video will always have a .mp4 extension. I did this to reduce possible errors. If you'd like to change video formats, I recommend using ffmpeg.
 
 ## requirements:
-Mac OS or Linux OS
+Mac OS or Linux OS      
 python2 or python3
 - numpy
 - dlib
