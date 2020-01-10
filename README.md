@@ -1,10 +1,5 @@
 # Speech Entrainment (SE) Video Generator
 makes the task of generating Speech Entrainment videos easier       
-\* currently optimizing program, check todo list at the bottom of this page *
-
-![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/flowchartupdated.png)
-
-sample input-ouput comparison: https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/final_5e0ec6cd6025710014847670_713368.mp4
 
 ## how to use: 
 1) record yourself saying something     
@@ -14,7 +9,7 @@ b) reduce camera shaking
 c) use a high-quality webcam
 2) run the following script:    
 ```
-python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py' num_of_temporal_smoothing_passes
+python3 getSEvideo.py 'input video path relative to getSEvideo.py' 'output video path relative to getSEvideo.py'
 ```
 
 ## example run:
@@ -25,38 +20,23 @@ python2 or python3
 - numpy
 - dlib
 - opencv-python
+- pykalman
+- pillow
 
 ## note: as you increase num_of_temporal_smoothing_passes, the program takes exponentially longer to complete
 
 ## How it works:
-1) video is inputted
-2) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
-3) mouth is cropped from video frames (using edited version of util/data_preprocessing_autoencoder.py from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
-4) extra (pictures) frames are added to smooth video (https://github.com/Coldog2333/pytoflow)
+1) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
+2) mouth is cropped from video frames (using edited version of util/data_preprocessing_autoencoder.py from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
+3) mouth-bounding box is kalman filtered (https://stackoverflow.com/questions/43377626/how-to-use-kalman-filter-in-python-for-location-data)
+4) Speech Entrainment video is created using cropped mouth pictures and original audio
 
-## Example input and output:
+## Example input and output: **currently editing folder**
 An example input video and a corresponding output video can be seen in the example_input_output folder. Because the person featured in these videos is myself, you may __not__ use these videos.
 
 ## References to code used:
 - face landmark points: http://dlib.net/, https://github.com/pandeydivesh15/AVSR-Deep-Speech
-- video temporal smoothing using interpolation: https://github.com/Coldog2333/pytoflow, https://github.com/anchen1011/toflow, http://toflow.csail.mit.edu/
-```
-@article{xue2019video,
-  title={Video Enhancement with Task-Oriented Flow},
-  author={Xue, Tianfan and Chen, Baian and Wu, Jiajun and Wei, Donglai and Freeman, William T},
-  journal={International Journal of Computer Vision (IJCV)},
-  volume={127},
-  number={8},
-  pages={1106--1125},
-  year={2019},
-  publisher={Springer}
-}
-```
-
-## todo: 
-- There's a slight lag due to...still trying to find out. I've noticed different video and audio duration times, so I'll first have to fix the audio extraction function. Also, instead of the current method of calculating new-framerate, I'll have to use (# of new frames) / (original duration).
-- implement a kalman filter
-- remove pytoflow implementation, find a faster video smoothing interpolation method
+- kalman filter: http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/, https://stackoverflow.com/questions/43377626/how-to-use-kalman-filter-in-python-for-location-data
 
 ## License:
 You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
