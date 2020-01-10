@@ -35,7 +35,7 @@ python
 4) Speech Entrainment video is created using cropped mouth pictures and original audio
 
 ## Example input and output:
-An example input video and a corresponding output video can be seen in the example_input_output folder. Because the person featured in these videos is myself, you may __not__ use these videos.
+An example input video and a corresponding output video can be seen in the example_input_output folder. Because the person featured in these videos is myself, you may __not__ use these videos. The example input video was recorded with an iPhone XR front-facing camera.
 
 ## References to code used:
 - face landmark points: http://dlib.net/, https://github.com/pandeydivesh15/AVSR-Deep-Speech
