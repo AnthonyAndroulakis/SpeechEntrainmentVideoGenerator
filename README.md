@@ -1,7 +1,7 @@
 # Speech Entrainment (SE) Video Generator
 makes the task of generating Speech Entrainment videos easier       
 
-![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/sevidgenchart.png)
+![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/SEchart.png)
 
 ## how to use: 
 1) record yourself saying something     
