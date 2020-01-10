@@ -3,17 +3,23 @@ import os,sys,glob
 import numpy as np
 import dlib
 import cv2
-
-import vidstab
-
-#from video_stream import VideoStream
+from pykalman import KalmanFilter
 
 from PIL import Image
 
 FACE_DETECTOR_MODEL = None
 LANDMARKS_PREDICTOR = None
 
-IMAGE_WIDTH = 500 # Every frame will be resized to this width before any processing
+def kalman_filter(measurements): #thank you kabdulla at https://stackoverflow.com/questions/43377626/how-to-use-kalman-filter-in-python-for-location-data
+	initial_state_mean = [measurements[0, 0],0,measurements[0, 1],0]
+	transition_matrix = [[1, 1, 0, 0],[0, 1, 0, 0],[0, 0, 1, 1],[0, 0, 0, 1]]
+	observation_matrix = [[1, 0, 0, 0],[0, 0, 1, 0]]
+	kf1 = KalmanFilter(transition_matrices = transition_matrix, observation_matrices = observation_matrix, initial_state_mean = initial_state_mean)
+	kf1 = kf1.em(measurements, n_iter=5)
+	kf2 = KalmanFilter(transition_matrices = transition_matrix, observation_matrices = observation_matrix, initial_state_mean = initial_state_mean, observation_covariance = 10*kf1.observation_covariance, em_vars=['transition_covariance', 'initial_state_covariance'])
+	kf2 = kf2.em(measurements, n_iter=5)
+	smoothed_state_means, smoothed_state_covariances  = kf2.smooth(measurements)
+	return smoothed_state_means[:, 0], smoothed_state_means[:, 2]
 
 def load_trained_models():
 	"""
@@ -48,9 +54,6 @@ def get_mouth_coord(landmarks):
 		1. landmarks: 	Facial landmarks returned by DLIB's LANDMARKS_PREDICTOR
 	"""
 	coords = []
-	#for i in range(48, 68):
-	#	point = landmarks.part(i)
-	#	coords.append((point.x, point.y))
 	coords.append((landmarks.part(33).x, landmarks.part(33).y))
 	coords.append(((landmarks.part(5).x+landmarks.part(6).x)/2, (landmarks.part(5).y+landmarks.part(6).y)/2))
 	coords.append(((landmarks.part(10).x+landmarks.part(11).x)/2, (landmarks.part(10).y+landmarks.part(11).y)/2))
@@ -84,7 +87,6 @@ def crop_and_store(frame, mouth_coordinates, name, thewidth, theheight):
 	"""
 
 	# Find bounding rectangle for mouth coordinates
-	#print(mouth_coordinates)
 	x, y, w, h = cv2.boundingRect(mouth_coordinates) #############
 
 	mouth_roi = frame[y:y + h, x:x + w]
@@ -97,7 +99,7 @@ def crop_and_store(frame, mouth_coordinates, name, thewidth, theheight):
 	resized = resize(mouth_roi, thewidth, theheight)
 	cv2.imwrite(name, resized)
 
-def extract_mouth_regions(path, output_dir, screen_display):
+def extract_mouth_regions(path, output_dir):
 	"""
 	Args:
 		1. path:			File path of the video file (.mp4 file) from which lip regions will be cropped.
@@ -106,29 +108,37 @@ def extract_mouth_regions(path, output_dir, screen_display):
 	"""
 	video_name = path.split('/')[-1].split(".")[0]
 
-	#stream = VideoStream(path)
-	#stream.start()
 	count = 0 # Counts number of mouth regions extracted
 
+	widths = []
+	heights = []
+	nose = []
+	lchin = []
+	rchin = []
 	for i in range(len(glob.glob('./frames/*.jpg'))): #find average width and height
 		frame = cv2.imread('./frames/'+str(i+1)+'.jpg')
 		rects = FACE_DETECTOR_MODEL(frame, 0)
-		widths = []
-		heights = []
 		for rect in rects: #find avg width and height
-			landmarks = LANDMARKS_PREDICTOR(frame, rect)
+			landmarks = LANDMARKS_PREDICTOR(frame, rects[0])
 			mouth_coordinates = get_mouth_coord(landmarks)
+			nose.append((mouth_coordinates[0][0],mouth_coordinates[0][1]))
+			lchin.append((mouth_coordinates[1][0],mouth_coordinates[1][1]))
+			rchin.append((mouth_coordinates[2][0],mouth_coordinates[2][1]))
 			x, y, w, h = cv2.boundingRect(mouth_coordinates)
 			widths.append(w)
 			heights.append(h)
 	avgwidth = round(sum(widths)/len(widths))
 	avgheight = round(sum(heights)/len(heights))
+	x1,y1 = kalman_filter(np.array(nose))
+	nose_pts = np.array((x1, y1)).T
+	x2,y2 = kalman_filter(np.array(lchin))
+	lchin_pts = np.array((x2, y2)).T
+	x3,y3 = kalman_filter(np.array(rchin))
+	rchin_pts = np.array((x3, y3)).T
 
 	for i in range(len(glob.glob('./frames/*.jpg'))):
 		#frame = stream.read()
 		frame = cv2.imread('./frames/'+str(i+1)+'.jpg')
-
-		#frame = resize(frame, IMAGE_WIDTH)
 
 		rects = FACE_DETECTOR_MODEL(frame, 0)
 
@@ -136,8 +146,11 @@ def extract_mouth_regions(path, output_dir, screen_display):
 		# Keeps hold of all mouth coordinates found in the frame.
 
 		for rect in rects:
-			landmarks = LANDMARKS_PREDICTOR(frame, rect)
-			mouth_coordinates = get_mouth_coord(landmarks)
+			mouth_coordinates = [] #reset mouth_coordinates
+			mouth_coordinates.append((nose_pts[i][0],nose_pts[i][1])) #i is the frame num
+			mouth_coordinates.append((lchin_pts[i][0],lchin_pts[i][1]))
+			mouth_coordinates.append((rchin_pts[i][0],rchin_pts[i][1]))
+			mouth_coordinates = np.array(mouth_coordinates, dtype=np.float32)
 			all_mouth_coordinates.append(mouth_coordinates)
 
 			crop_and_store(
@@ -149,17 +162,7 @@ def extract_mouth_regions(path, output_dir, screen_display):
 
 			count+=1
 
-		if screen_display:
-			visualize(frame, all_mouth_coordinates)			
-
-			if cv2.waitKey(1) & 0xFF == ord('q'):
-				break
-
-	if screen_display:
-		cv2.destroyAllWindows()
-
-
-def getSEvideo(path, outputpath, numinterp): #input video relative path, output video relative path, number of smoothings by interpolation
+def getSEvideo(path, outputpath): #input video relative path, output video relative path, number of smoothings by interpolation
 	originalpath = path
 
 	os.system('mkdir -p frames')
@@ -168,58 +171,65 @@ def getSEvideo(path, outputpath, numinterp): #input video relative path, output 
 	os.system('mkdir -p silentvid')
 	os.system('mkdir -p pngfiles')
 
+	print('Preprocessing video...')
 	video_name = path.split('/')[-1].split(".")[0]
 	input_directory = '/'.join(path.split('/')[:-1])
 	if path[-3:] != 'mp4': 
-		os.system('ffmpeg -i '+path+' -q:v 0 '+input_directory+'/'+video_name+'.mp4')
+		os.system('ffmpeg -nostats -loglevel 0 -i '+path+' -q:v 0 '+input_directory+'/'+video_name+'.mp4')
 		path = input_directory+'/'+video_name+'.mp4'
 
 	#output_dir = outputdirectory
 	outvideo_name = outputpath.split('/')[-1].split(".")[0]
 	output_dir = '/'.join(outputpath.split('/')[:-1])
 
+	print('Loading face detector model...')
 	load_trained_models()
 
 	if not FACE_DETECTOR_MODEL:
 		return False
 
-	os.system('ffmpeg -i '+originalpath+' -qscale 0 frames/%d.jpg') #convert video to frames
+	print('Extracting frames...')
+	os.system('ffmpeg -nostats -loglevel 0 -i '+originalpath+' -qscale 0 frames/%d.jpg') #convert video to frames
 
-	os.system('ffmpeg -i '+path+' -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/'+video_name+'.wav') #extract audio from video, place in audio folder
+	print('Extracting audio...')
+	os.system('ffmpeg -nostats -loglevel 0 -i '+path+' -qscale 0 audio/'+video_name+'.wav') #extract audio from video, place in audio folder...seems like qscale is fixing everything for me
 
-	extract_mouth_regions(path, './pictures', screen_display=False) #pictures placed in pictures folder
+	print('Extracting mouth regions...')
+	extract_mouth_regions(path, './pictures') #pictures placed in pictures folder
 
-	#smooth SE video using interpolationXn
-	for k in glob.glob('pictures/*.jpg'): #copy files from pictures to png files and convert
+	#get png files
+	print('Converting images...')
+	for k in glob.glob('pictures/*.jpg'):
 		jpgim = Image.open(k)
 		jpgim.save('pngfiles/'+k.split('/')[-1][:-4]+'.png')
 
-	for ijk in range(int(numinterp)): #number of interpolations
-		for i in list(range(len(glob.glob('pngfiles/*.png'))))[::-1]: #convert all number pictures to even numbers
-			os.system('mv pngfiles/'+str(i)+'.png pngfiles/'+str(2*i)+'.png')
-		for j in range(len(glob.glob('pngfiles/*.png'))-1): #smooth frames using interpolation
-			os.system('python3 pytoflow/run.py --f1 pngfiles/'+str(2*j)+'.png --f2 pngfiles/'+str(2*(j+1))+'.png --o pngfiles/'+str(2*j+1)+'.png --task interp')
-
 	#create SE video
-	oldnumofpics = len(glob.glob('pictures/*.jpg'))
-	newnumofpics = len(glob.glob('pngfiles/*.png'))
-	framerate = (newnumofpics/oldnumofpics)*float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
-	os.system('ffmpeg -framerate '+str(round(framerate))+' -start_number 0 -i pngfiles/%d.png -vcodec mpeg4 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
+	print('Creating Speech Entrainment video...')
+	framerate = float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
+	os.system('ffmpeg -nostats -loglevel 0 -framerate '+str(framerate)+' -start_number 0 -i pngfiles/%d.png -qscale 0 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
+
 	#add audio to silent video
-	os.system('ffmpeg -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
+	print('Adding audio to Speech Entrainment video...')
+	os.system('ffmpeg -nostats -loglevel 0 -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'_long.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
+	os.system('ffmpeg -nostats -loglevel 0 -i '+output_dir+'/'+outvideo_name+'_long.mp4 -i '+output_dir+'/'+outvideo_name+'_long.mp4 -c copy -shortest -map 0:v -map 1:a '+output_dir+'/'+outvideo_name+'.mp4')
 
 	os.system('rm -rf frames')
 	os.system('rm -rf audio')
 	os.system('rm -rf pictures')
 	os.system('rm -rf silentvid')
 	os.system('rm -rf pngfiles')
+	if originalpath != path:
+		os.system('rm '+path)
+	os.system('rm '+output_dir+'/'+outvideo_name+'_long.mp4')
+
+	print('Speech Entrainment video created!')
 
 	return True
 
-#if len(sys.argv[1:])<3:
-#	print("**Error: no inputs. Correct usage for getSEvideo shown below:")
-#	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py' num_of_temporal_smoothing_passes")
-#	exit()
+if len(sys.argv[1:])<2:
+	print("**Error: not enough inputs. Correct usage for getSEvideo shown below:")
+	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py'")
+	exit()
 
-getSEvideo(sys.argv[1],sys.argv[2],sys.argv[3])
+getSEvideo(sys.argv[1],sys.argv[2])
 #dont bother automating the video recording, just do it on a phone
