@@ -1,5 +1,5 @@
 # Speech Entrainment (SE) Video Generator
-makes the task of generating Speech Entrainment videos easier       
+makes the task of generating Speech Entrainment videos much easier       
 
 ![flowchart](https://github.com/AnthonyAndroulakis/SpeechEntrainmentVideoGenerator/blob/master/example_input_output/SEchart.png)
 
