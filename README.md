@@ -19,7 +19,7 @@ python3 getSEvideo.py 'input video path relative to getSEvideo.py' 'output video
 
 ## requirements:
 Mac OS or Linux OS      
-python2 or python3
+python
 - numpy
 - dlib
 - opencv-python
