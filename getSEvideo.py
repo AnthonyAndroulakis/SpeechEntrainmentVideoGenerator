@@ -3,10 +3,7 @@ import os,sys,glob
 import numpy as np
 import dlib
 import cv2
-<<<<<<< HEAD
 from pykalman import KalmanFilter
-=======
->>>>>>> a8596a432857c8b903ce2b5c899121648a3bae30
 
 from PIL import Image
 
@@ -207,17 +204,10 @@ def getSEvideo(path, outputpath): #input video relative path, output video relat
 		jpgim.save('pngfiles/'+k.split('/')[-1][:-4]+'.png')
 
 	#create SE video
-<<<<<<< HEAD
 	print('Creating Speech Entrainment video...')
 	framerate = float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
 	os.system('ffmpeg -nostats -loglevel 0 -framerate '+str(framerate)+' -start_number 0 -i pngfiles/%d.png -qscale 0 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
 
-=======
-	oldnumofpics = len(glob.glob('pictures/*.jpg'))
-	newnumofpics = len(glob.glob('pngfiles/*.png'))
-	framerate = (newnumofpics/oldnumofpics)*float(os.popen('ffmpeg -i '+path+' 2>&1 | sed -n "s/.*, \\(.*\\) fp.*/\\1/p"').read()[:-1]) #as a float
-	os.system('ffmpeg -framerate '+str(round(framerate))+' -start_number 0 -i pngfiles/%d.png -qscale 0 silentvid/'+video_name+'_silent.mp4') #silent SE video placed in 'silentvid folder
->>>>>>> a8596a432857c8b903ce2b5c899121648a3bae30
 	#add audio to silent video
 	print('Adding audio to Speech Entrainment video...')
 	os.system('ffmpeg -nostats -loglevel 0 -i silentvid/'+video_name+'_silent.mp4 -i audio/'+video_name+'.wav -c:v copy -c:a aac -strict experimental '+output_dir+'/'+outvideo_name+'_long.mp4') #only outputs to .mp4, you can change the extension afterwards if necessary
@@ -241,9 +231,5 @@ if len(sys.argv[1:])<2:
 	print("python3 getSEvideo.py 'input video relative-path-to-getSEvideo.py' 'output video relative-path-to-getSEvideo.py'")
 	exit()
 
-<<<<<<< HEAD
 getSEvideo(sys.argv[1],sys.argv[2])
-=======
-getSEvideo(sys.argv[1],sys.argv[2],sys.argv[3])
->>>>>>> a8596a432857c8b903ce2b5c899121648a3bae30
 #dont bother automating the video recording, just do it on a phone
