@@ -25,7 +25,7 @@ python2 or python3
 - pykalman
 - pillow
 
-## note: the output video will not be playable in Quicktime since Quicktime will only play specific types of videos (https://stackoverflow.com/a/5220516). I avoided reencoding when possible in order to minimize quality-loss.
+#### note: the output video will not be playable in Quicktime since Quicktime will only play specific types of videos (https://stackoverflow.com/a/5220516). I avoided reencoding when possible in order to minimize quality-loss.
 
 ## How it works:
 1) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
