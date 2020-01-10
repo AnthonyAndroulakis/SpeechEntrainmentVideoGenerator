@@ -25,22 +25,19 @@ python2 or python3
 - numpy
 - dlib
 - opencv-python
-- vidstab
 
 ## note: as you increase num_of_temporal_smoothing_passes, the program takes exponentially longer to complete
 
 ## How it works:
 1) video is inputted
-2) video is stabilized using vidstab (https://github.com/AdamSpannbauer/python_video_stab)
-3) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
-4) mouth is cropped from video frames (using edited version of util/data_preprocessing_autoencoder.py from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
-5) extra (pictures) frames are added to smooth video (https://github.com/Coldog2333/pytoflow)
+2) face landmark points are extracted using dlib (http://dlib.net/python/index.html)
+3) mouth is cropped from video frames (using edited version of util/data_preprocessing_autoencoder.py from https://github.com/pandeydivesh15/AVSR-Deep-Speech)
+4) extra (pictures) frames are added to smooth video (https://github.com/Coldog2333/pytoflow)
 
 ## Example input and output:
 An example input video and a corresponding output video can be seen in the example_input_output folder. Because the person featured in these videos is myself, you may __not__ use these videos.
 
 ## References to code used:
-- video stabilization: https://github.com/AdamSpannbauer/python_video_stab
 - face landmark points: http://dlib.net/, https://github.com/pandeydivesh15/AVSR-Deep-Speech
 - video temporal smoothing using interpolation: https://github.com/Coldog2333/pytoflow, https://github.com/anchen1011/toflow, http://toflow.csail.mit.edu/
 ```
@@ -58,8 +55,8 @@ An example input video and a corresponding output video can be seen in the examp
 
 ## todo: 
 - There's a slight lag due to...still trying to find out. I've noticed different video and audio duration times, so I'll first have to fix the audio extraction function. Also, instead of the current method of calculating new-framerate, I'll have to use (# of new frames) / (original duration).
-- upscaling png files...maybe? Using a better camera would do the trick, but maybe I can use AI for "super-resolution".
-- store png files with correct dimensions (as of now they're all 32x32 squares...........). Will have to figure out average width and height of bounding box.
+- implement a kalman filter
+- remove pytoflow implementation, find a faster video smoothing interpolation method
 
 ## License:
 You may use this code as long as you cite this repository and include in your references the codes I have under __References to code used__.
