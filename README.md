@@ -6,9 +6,9 @@ makes the task of generating Speech Entrainment videos easier
 ## how to use: 
 1) record yourself saying something     
 - for the best results, do the following:
-a) have your entire face in the input video
-b) reduce camera shaking
-c) use a high-quality webcam
+i) have your entire face in the input video
+ii) reduce camera shaking
+iii) use a high-quality webcam
 2) run the following script:    
 ```
 python3 getSEvideo.py 'input video path relative to getSEvideo.py' 'output video path relative to getSEvideo.py'
