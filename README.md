@@ -15,7 +15,7 @@ python3 getSEvideo.py 'input video path relative to getSEvideo.py' 'output video
 ```
 
 ## example run:
-`python3 getSEvideo.py input/input.MOV output/SEoutput.mp4 2` #note: the output video will always have a .mp4 extension. I did this to reduce possible errors. If you'd like to change video formats, I recommend using ffmpeg.
+`python3 getSEvideo.py input/input.MOV output/SEoutput.mp4` #note: the output video will always have a .mp4 extension. I did this to reduce possible errors. If you'd like to change video formats, I recommend using ffmpeg.
 
 ## requirements:
 python2 or python3
@@ -33,7 +33,7 @@ python2 or python3
 3) mouth-bounding box is kalman filtered (https://stackoverflow.com/questions/43377626/how-to-use-kalman-filter-in-python-for-location-data)
 4) Speech Entrainment video is created using cropped mouth pictures and original audio
 
-## Example input and output: **currently editing folder**
+## Example input and output:
 An example input video and a corresponding output video can be seen in the example_input_output folder. Because the person featured in these videos is myself, you may __not__ use these videos.
 
 ## References to code used:
